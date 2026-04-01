@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💰 Money Date — Arthur & Lorena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F4EE;
+      --bg-card: #FFFFFF;
+      --bg-muted: #EFECE5;
+      --green: #0A5C48;
+      --green-mid: #127A60;
+      --green-light: #E6F4EF;
+      --amber: #B87217;
+      --amber-mid: #CB8421;
+      --amber-light: #FEF4E0;
+      --coral: #A63535;
+      --coral-light: #FDEDED;
+      --purple: #52368A;
+      --purple-light: #F0ECF9;
+      --text: #1C1917;
+      --text-muted: #6B6560;
+      --text-light: #A09890;
+      --border: #E2DDD5;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+      --shadow: 0 4px 16px rgba(0,0,0,0.09);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.13);
+      --r: 14px;
+      --r-sm: 8px;
+    }
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+    #root { min-height: 100vh; }
+    h1,h2,h3,.serif { font-family: 'Playfair Display', serif; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity:0; }
+      to   { opacity:1; }
+    }
+    @keyframes popIn {
+      0%   { transform:scale(0.92); opacity:0; }
+      100% { transform:scale(1);    opacity:1; }
+    }
+    .au  { animation: fadeUp  0.45s ease both; }
+    .au1 { animation: fadeUp  0.45s .06s ease both; }
+    .au2 { animation: fadeUp  0.45s .12s ease both; }
+    .au3 { animation: fadeUp  0.45s .18s ease both; }
+    .au4 { animation: fadeUp  0.45s .24s ease both; }
+    .ai  { animation: fadeIn  0.32s ease both; }
+    .pi  { animation: popIn   0.3s  ease both; }
+
+    input[type=text],input[type=number],input[type=date],textarea {
+      width:100%; background:var(--bg); border:1.5px solid var(--border);
+      border-radius:var(--r-sm); padding:11px 14px;
+      font-family:'DM Sans',sans-serif; font-size:15px; color:var(--text);
+      transition:border-color .2s, box-shadow .2s; outline:none;
+    }
+    input:focus,textarea:focus {
+      border-color:var(--green-mid);
+      box-shadow:0 0 0 3px rgba(10,92,72,0.1);
+      background:#fff;
+    }
+    textarea { resize:vertical; min-height:72px; line-height:1.55; }
+    button { font-family:'DM Sans',sans-serif; cursor:pointer; transition:all .2s; }
+
+    .cw::before { content:'$'; position:absolute; left:13px; top:50%;
+      transform:translateY(-50%); color:var(--text-muted); font-size:14px;
+      font-weight:500; pointer-events:none; }
+    .cw { position:relative; }
+    .cw input { padding-left:26px !important; }
+
+    .btn-p {
+      background:var(--green); color:#fff; border:none;
+      border-radius:var(--r-sm); padding:13px 28px; font-size:15px; font-weight:600;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn-p:hover { background:var(--green-mid); transform:translateY(-1px); box-shadow:var(--shadow); }
+    .btn-p:disabled { opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-s {
+      background:transparent; color:var(--text-muted); border:1.5px solid var(--border);
+      border-radius:var(--r-sm); padding:12px 22px; font-size:14px; font-weight:500;
+    }
+    .btn-s:hover { border-color:var(--text-muted); color:var(--text); }
+    .btn-amber {
+      background:var(--amber); color:#fff; border:none;
+      border-radius:var(--r-sm); padding:13px 28px; font-size:15px; font-weight:600;
+    }
+    .btn-amber:hover { filter:brightness(1.07); }
+
+    label { display:block; font-size:12px; font-weight:600; color:var(--text-muted);
+      margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+    .fg { margin-bottom:18px; }
+
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r); padding:24px; box-shadow:var(--shadow-sm); }
+
+    .pcard { border-radius:var(--r); padding:20px 22px; }
+    .pcard-g { background:var(--green-light); border:1px solid rgba(10,92,72,0.11); }
+    .pcard-a { background:var(--amber-light); border:1px solid rgba(184,114,23,0.14); }
+    .pcard-c { background:var(--coral-light); border:1px solid rgba(166,53,53,0.13); }
+    .pcard-p { background:var(--purple-light); border:1px solid rgba(82,54,138,0.14); }
+
+    .plabel { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
+    .pi-item { display:flex; gap:10px; margin-bottom:10px; font-size:13.5px; line-height:1.55; }
+    .pi-item:last-child { margin-bottom:0; }
+
+    .mood-btn { background:none; border:2px solid transparent; border-radius:50%;
+      width:48px; height:48px; font-size:24px; display:flex; align-items:center;
+      justify-content:center; cursor:pointer; transition:all .15s; }
+    .mood-btn:hover { transform:scale(1.12); background:rgba(0,0,0,.04); }
+    .mood-btn.sel { border-color:var(--green-mid); background:var(--green-light); transform:scale(1.18); }
+
+    .mcard { border:2px solid var(--border); border-radius:var(--r); padding:20px 18px;
+      cursor:pointer; transition:all .2s; background:var(--bg-card); width:100%; text-align:left; }
+    .mcard:hover { border-color:var(--green-mid); box-shadow:var(--shadow); transform:translateY(-2px); }
+    .mcard.sel { border-color:var(--green); background:var(--green-light); }
+    .mcard.sel-a { border-color:var(--amber); background:var(--amber-light); }
+
+    .pbar-t { height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+    .pbar-f { height:100%; background:var(--green); border-radius:2px; transition:width .55s cubic-bezier(.4,0,.2,1); }
+
+    .dot-track { display:flex; gap:5px; justify-content:center; }
+    .dot { height:6px; border-radius:3px; transition:all .35s cubic-bezier(.4,0,.2,1); }
+
+    .hdr-g  { background:linear-gradient(135deg,#0A5C48 0%,#147B62 100%); }
+    .hdr-a  { background:linear-gradient(135deg,#9E6112 0%,#CB8421 100%); }
+    .hdr-c  { background:linear-gradient(135deg,#8A2C2C 0%,#B74040 100%); }
+    .hdr-p  { background:linear-gradient(135deg,#3E2670 0%,#5B3D8F 100%); }
+
+    .rcpt { background:#fff; border-radius:var(--r); border:1px solid var(--border); overflow:hidden; }
+    .rcpt-row { display:flex; justify-content:space-between; align-items:center;
+      padding:11px 18px; border-bottom:1px solid var(--border); }
+    .rcpt-row:last-child { border-bottom:none; }
+    .rcpt-row .k { font-size:13px; color:var(--text-muted); font-weight:500; }
+    .rcpt-row .v { font-size:14px; font-weight:600; text-align:right; max-width:60%; }
+    .rcpt-tot { background:var(--green-light); }
+    .rcpt-tot .k { font-weight:700; color:var(--green); }
+    .rcpt-tot .v { font-size:16px; color:var(--green); }
+
+.nw-card { background:linear-gradient(135deg,var(--green) 0%,var(--green-mid) 100%);
+      color:#fff; border-radius:var(--r); padding:16px 20px;
+      display:flex; justify-content:space-between; align-items:center; }
+
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .step-cols { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+    @media(max-width:700px) { .step-cols,.g2 { grid-template-columns:1fr; } }
+
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-thumb { background:#CCC7C0; border-radius:3px; }
+
+    .quote-card { background:var(--bg-muted); border-left:3px solid var(--purple);
+      padding:14px 16px; border-radius:0 var(--r-sm) var(--r-sm) 0; margin-top:14px; }
+
+    .tip-box { padding:14px 16px; border-radius:var(--r-sm); margin-top:14px; }
+    .tip-g { background:var(--green-light); border:1px solid rgba(10,92,72,.12); }
+    .tip-a { background:var(--amber-light); border:1px solid rgba(184,114,23,.14); }
+    .tip-p { background:var(--purple-light); border:1px solid rgba(82,54,138,.14); }
+    .tip-c { background:var(--coral-light); border:1px solid rgba(166,53,53,.13); }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+const STEPS = {
+  monthly:   ['warmup','budget','savings','debt','upcoming','actions','summary'],
+  quarterly: ['warmup','budget','savings','debt','upcoming','retirement','actions','summary'],
+  annual:    ['warmup','goals-review','goals5','goals10','goals20','theme','budget','savings','debt','upcoming','retirement','actions','summary'],
+};
+const META = {
+  warmup:        { title:'Warm-Up',               emoji:'🎉', hdr:'hdr-a', pr:'pcard-a', clr:'var(--amber)',   time:'~5 min'  },
+  budget:        { title:'Budget & Spending',      emoji:'📊', hdr:'hdr-g', pr:'pcard-g', clr:'var(--green)',   time:'~15 min' },
+  savings:       { title:'Savings & Investments',  emoji:'💰', hdr:'hdr-g', pr:'pcard-g', clr:'var(--green)',   time:'~10 min' },
+  debt:          { title:'Debt Tracker',           emoji:'💳', hdr:'hdr-c', pr:'pcard-c', clr:'var(--coral)',   time:'~10 min' },
+  upcoming:      { title:'Upcoming Expenses',      emoji:'🗓️', hdr:'hdr-a', pr:'pcard-a', clr:'var(--amber)',   time:'~10 min' },
+  retirement:    { title:'Retirement Corner',      emoji:'💼', hdr:'hdr-p', pr:'pcard-p', clr:'var(--purple)',  time:'~20 min' },
+  'goals-review':{ title:'Goals Review',           emoji:'🔍', hdr:'hdr-p', pr:'pcard-p', clr:'var(--purple)',  time:'~15 min' },
+  goals5:        { title:'5-Year Goals  (by 2031)',emoji:'🌱', hdr:'hdr-p', pr:'pcard-p', clr:'var(--purple)',  time:'~15 min' },
+  goals10:       { title:'10-Year Goals (by 2036)',emoji:'🚀', hdr:'hdr-p', pr:'pcard-p', clr:'var(--purple)',  time:'~10 min' },
+  goals20:       { title:'20-Year Goals (by 2046)',emoji:'🌈', hdr:'hdr-p', pr:'pcard-p', clr:'var(--purple)',  time:'~10 min' },
+  theme:         { title:'Our 2026 Theme',         emoji:'🎯', hdr:'hdr-a', pr:'pcard-a', clr:'var(--amber)',   time:'~10 min' },
+  actions:       { title:'Action Items',           emoji:'✅', hdr:'hdr-g', pr:'pcard-g', clr:'var(--green)',   time:'~10 min' },
+  summary:       { title:'Summary & Export',       emoji:'📋', hdr:'hdr-g', pr:'pcard-g', clr:'var(--green)',   time:''        },
+};
+const MOODS = ['😟','😐','😊','😄','🤩'];
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+const fmt$ = v => {
+  const n = parseFloat(v);
+  if (isNaN(n) || v === '') return '—';
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+};
+const calcNW = d => (parseFloat(d.savingsBalance)||0)+(parseFloat(d.investments)||0)-(parseFloat(d.debt)||0);
+const calcNet = d => (parseFloat(d.income)||0)-(parseFloat(d.expenses)||0);
+
+// ─── Micro-components ─────────────────────────────────────────────────────────
+const Field = ({label,name,data,set,type='text',placeholder='',rows,mono}) => {
+  const v = data[name]||'';
+  const upd = e => set(p=>({...p,[name]:e.target.value}));
+  const isNum = type==='number';
+  return (
+    <div className="fg">
+      {label && <label>{label}</label>}
+      {isNum ? (
+        <div className="cw"><input type="number" value={v} onChange={upd} placeholder="0" /></div>
+      ) : rows ? (
+        <textarea rows={rows} value={v} onChange={upd} placeholder={placeholder} />
+      ) : (
+        <input type={type} value={v} onChange={upd} placeholder={placeholder}
+          style={mono?{fontFamily:'monospace',fontSize:'22px',fontWeight:700,textAlign:'center',letterSpacing:'.03em'}:{}} />
+      )}
+    </div>
+  );
+};
+
+const Prompt = ({items,cls='pcard-g',clr='var(--green)',children}) => (
+  <div className={`pcard ${cls}`}>
+    <div className="plabel" style={{color:clr}}>💬 Discussion Prompts</div>
+    {items.map((t,i) => <div key={i} className="pi-item"><span style={{opacity:.5}}>›</span><span>{t}</span></div>)}
+    {children}
+  </div>
+);
+
+const MoodRow = ({label,name,data,set}) => (
+  <div className="fg">
+    <label>{label}</label>
+    <div style={{display:'flex',gap:'6px'}}>
+      {MOODS.map(m=>(
+        <button key={m} className={`mood-btn ${data[name]===m?'sel':''}`} onClick={()=>set(p=>({...p,[name]:m}))} type="button">{m}</button>
+      ))}
+    </div>
+  </div>
+);
+
+const LiveBadge = ({label,value,color='var(--green)',bg='var(--green-light)'}) => (
+  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+    padding:'12px 16px',background:bg,borderRadius:'var(--r-sm)',marginBottom:'16px',
+    border:`1px solid ${color}22`}}>
+    <span style={{fontSize:'13px',fontWeight:600,color}}>{label}</span>
+    <span style={{fontSize:'20px',fontWeight:700,color,fontFamily:"'Playfair Display',serif"}}>{value}</span>
+  </div>
+);
+
+// ─── Step Components ──────────────────────────────────────────────────────────
+const WarmupStep = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-a" clr="var(--amber)" items={[
+        "Start with a win — no matter how small. Skip a purchase? Hit a goal? Celebrate it!",
+        "How did money make you feel this month? Stressed, calm, excited? No judgment.",
+        "Is there anything one of you handled financially that deserves a compliment?",
+      ]}>
+        <div className="tip-box tip-a" style={{marginTop:'12px'}}>
+          <div style={{fontSize:'12px',fontWeight:700,color:'var(--amber)',marginBottom:'4px'}}>⏱ TIMING TIP</div>
+          <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>Keep this to 5 min. Arrive energized, not overwhelmed. The rest of the agenda has space for details.</div>
+        </div>
+      </Prompt>
+    </div>
+    <div>
+      <div className="fg">
+        <label>Arthur's Win This Month 🏆</label>
+        <textarea rows={3} value={data.arthurWin||''} onChange={e=>set(p=>({...p,arthurWin:e.target.value}))} placeholder="Something financial I'm proud of this month..." />
+      </div>
+      <div className="fg">
+        <label>Lorena's Win This Month 🏆</label>
+        <textarea rows={3} value={data.lorenaWin||''} onChange={e=>set(p=>({...p,lorenaWin:e.target.value}))} placeholder="Something financial I'm proud of this month..." />
+      </div>
+      <div className="g2">
+        <MoodRow label="Arthur's money mood" name="arthurMoodS" data={data} set={set} />
+        <MoodRow label="Lorena's money mood" name="lorenaMoodS" data={data} set={set} />
+      </div>
+    </div>
+  </div>
+);
+
+const BudgetStep = ({data,set}) => {
+  const net = calcNet(data);
+  const inc = parseFloat(data.income)||0;
+  const rate = inc>0 ? (net/inc*100).toFixed(1) : null;
+  const hasNums = data.income||data.expenses;
+  return (
+    <div className="step-cols">
+      <div>
+        <Prompt items={[
+          "Which category surprised you the most this month?",
+          "Was there a purchase that felt truly worth it — and one that didn't?",
+          "Any subscriptions or recurring bills we should audit?",
+          "If we had to cut $200/month, where would it come from?",
+        ]} />
+        <div className="tip-box tip-g" style={{marginTop:'16px'}}>
+          <div style={{fontSize:'12px',fontWeight:700,color:'var(--green)',marginBottom:'4px'}}>📐 HEALTHY SAVINGS RATE</div>
+          <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>Aim for 20%+ if you can. Even 10% consistently beats 30% occasionally. Progress &gt; perfection.</div>
+        </div>
+      </div>
+      <div>
+        <div className="g2">
+          <Field label="Total Income" name="income" type="number" data={data} set={set} />
+          <Field label="Total Expenses" name="expenses" type="number" data={data} set={set} />
+        </div>
+        {hasNums && (
+          <LiveBadge
+            label={net>=0?`Net Savings  •  ${rate}% savings rate`:'Overspent this month'}
+            value={fmt$(net)}
+            color={net>=0?'var(--green)':'var(--coral)'}
+            bg={net>=0?'var(--green-light)':'var(--coral-light)'}
+          />
+        )}
+        <Field label="What we did well 👍" name="budgetWell" rows={2} placeholder="e.g. Stayed under grocery budget, cooked at home more..." data={data} set={set} />
+        <Field label="What to tweak next month" name="budgetAdjust" rows={2} placeholder="e.g. Dining out got away from us..." data={data} set={set} />
+      </div>
+    </div>
+  );
+};
+
+const SavingsStep = ({data,set}) => {
+  const nw = calcNW(data);
+  const hasNums = data.savingsBalance||data.investments||data.debt;
+  return (
+    <div className="step-cols">
+      <div>
+        <Prompt items={[
+          "Are we on track with our monthly savings goal?",
+          "Any opportunities to invest more — a raise, bonus, or reduced expense?",
+          "Are our investment allocations still aligned with our timeline and goals?",
+          "Are we happy with where our savings are parked? HYSA, CD, brokerage?",
+        ]} />
+        <div className="tip-box tip-g" style={{marginTop:'14px'}}>
+          <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>💡 <strong style={{color:'var(--green)'}}>Net Worth</strong> = Savings + Investments − Debt. It's the number that actually tells the story.</div>
+        </div>
+      </div>
+      <div>
+        <Field label="Savings Account Balance" name="savingsBalance" type="number" data={data} set={set} />
+        <Field label="Investments Balance (brokerage, etc.)" name="investments" type="number" data={data} set={set} />
+        {hasNums && (
+          <div className="nw-card" style={{marginBottom:'16px'}}>
+            <div>
+              <div style={{fontSize:'11px',opacity:.6,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase'}}>Net Worth</div>
+              <div style={{fontSize:'26px',fontWeight:700,fontFamily:"'Playfair Display',serif"}}>{fmt$(nw)}</div>
+            </div>
+            <div style={{fontSize:'36px',opacity:.25}}>💎</div>
+          </div>
+        )}
+        <Field label="Notes / anything to change?" name="savingsNotes" rows={3} placeholder="e.g. Want to open a HYSA, increase auto-transfer..." data={data} set={set} />
+      </div>
+    </div>
+  );
+};
+
+const DebtStep = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-c" clr="var(--coral)" items={[
+        "Did our total debt go down since last month? If yes — celebrate!",
+        "Which is our highest-interest debt? That's our target.",
+        "Can we throw any extra toward it this month?",
+        "Any debt we could refinance, consolidate, or eliminate entirely?",
+      ]}>
+        <div className="tip-box tip-c" style={{marginTop:'12px'}}>
+          <div style={{fontSize:'12px',fontWeight:700,color:'var(--coral)',marginBottom:'4px'}}>❄️ AVALANCHE METHOD</div>
+          <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>Pay minimums everywhere. Every extra dollar goes to the <em>highest-interest</em> debt first. Mathematically optimal.</div>
+        </div>
+      </Prompt>
+    </div>
+    <div>
+      <Field label="Total Debt Balance" name="debt" type="number" data={data} set={set} />
+      {data.debt && <LiveBadge label="Total Debt" value={fmt$(data.debt)} color="var(--coral)" bg="var(--coral-light)" />}
+      <Field label="Our Current Debt Focus" name="debtFocus" placeholder="e.g. Visa @ 22% APR" data={data} set={set} />
+      <Field label="Extra payments made this month?" name="debtExtra" rows={2} placeholder="e.g. Paid $400 extra on car loan..." data={data} set={set} />
+      <Field label="Estimated payoff date for this debt" name="debtPayoff" placeholder="e.g. March 2027" data={data} set={set} />
+    </div>
+  </div>
+);
+
+const UpcomingStep = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-a" clr="var(--amber)" items={[
+        "Any big purchases in the next 1–3 months? Travel, car, home, gifts?",
+        "Are we saving toward anything specific right now?",
+        "Anything seasonal that could sneak up on us — back to school, holidays, annual fees?",
+      ]} />
+    </div>
+    <div>
+      {[1,2,3].map(i=>(
+        <div key={i} className="g2">
+          <Field label={`Upcoming Expense #${i}`} name={`upName${i}`} placeholder={['e.g. Car service','e.g. Vacation deposit','e.g. Annual insurance'][i-1]} data={data} set={set} />
+          <Field label="Estimated Cost" name={`upAmt${i}`} type="number" data={data} set={set} />
+        </div>
+      ))}
+      <Field label="Notes — are we saving for any of these?" name="upNotes" rows={2} placeholder="Any sinking funds or savings goals in place?" data={data} set={set} />
+    </div>
+  </div>
+);
+
+const RetirementStep = ({data,set}) => {
+  const tot = (parseFloat(data.arthurRetirement)||0)+(parseFloat(data.lorenaRetirement)||0);
+  return (
+    <div className="step-cols">
+      <div>
+        <Prompt cls="pcard-p" clr="var(--purple)" items={[
+          "Are we contributing enough to hit our retirement target? Room to increase by even 1%?",
+          "How are our allocations — aggressive enough for our timeline?",
+          "Any accounts to consolidate, roll over, or change?",
+          "Any life change that affects our retirement picture?",
+        ]}>
+          <div className="tip-box tip-p" style={{marginTop:'12px'}}>
+            <div style={{fontSize:'12px',fontWeight:700,color:'var(--purple)',marginBottom:'4px'}}>📐 RULE OF THUMB</div>
+            <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>Save at least 15% of gross income for retirement. Started late? Aim for 20%+. Time in market beats timing the market.</div>
+          </div>
+        </Prompt>
+      </div>
+      <div>
+        <div className="g2">
+          <Field label="Arthur's Retirement Accounts" name="arthurRetirement" type="number" data={data} set={set} />
+          <Field label="Lorena's Retirement Accounts" name="lorenaRetirement" type="number" data={data} set={set} />
+        </div>
+        {tot>0 && <LiveBadge label="Combined Retirement Total" value={fmt$(tot)} color="var(--purple)" bg="var(--purple-light)" />}
+        <div className="g2">
+          <Field label="Arthur's Target Retire Age" name="arthurRetireAge" placeholder="e.g. 60" data={data} set={set} />
+          <Field label="Lorena's Target Retire Age" name="lorenaRetireAge" placeholder="e.g. 58" data={data} set={set} />
+        </div>
+        <Field label="Annual Contribution Pace ($)" name="annualContrib" type="number" data={data} set={set} />
+        <Field label="Notes & Action Items" name="retNotes" rows={2} placeholder="e.g. Increase 401k by 1% next paycheck..." data={data} set={set} />
+      </div>
+    </div>
+  );
+};
+
+const GoalsReviewStep = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-p" clr="var(--purple)" items={[
+        "Which goals from last year make you most proud looking back?",
+        "Are there goals you set that no longer resonate? Letting go is valid.",
+        "Has anything shifted — career, family, values — that changes your priorities?",
+        "What do you both want more of in your financial life this year?",
+      ]}>
+        <div className="tip-box tip-p" style={{marginTop:'12px'}}>
+          <div style={{fontSize:'12px',fontWeight:700,color:'var(--purple)',marginBottom:'4px'}}>🌟 THIS IS THE ANNUAL REVIEW</div>
+          <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>You're not just reviewing numbers. You're reviewing the direction of your life together. Slow down here. Pour a drink.</div>
+        </div>
+        <a href="https://tutuelolo.lovable.app/" target="_blank" rel="noopener noreferrer"
+          style={{marginTop:'12px',display:'flex',alignItems:'center',gap:'9px',
+            padding:'11px 14px',borderRadius:'var(--r-sm)',textDecoration:'none',
+            background:'rgba(82,54,138,0.1)',border:'1px solid rgba(82,54,138,0.2)',
+            color:'var(--purple)',fontSize:'13px',fontWeight:600,transition:'background .2s'}}
+          onMouseOver={e=>e.currentTarget.style.background='rgba(82,54,138,0.18)'}
+          onMouseOut={e=>e.currentTarget.style.background='rgba(82,54,138,0.1)'}>
+          <span style={{fontSize:'18px'}}>🤖</span>
+          <span>Open Retirement Calculator ↗</span>
+        </a>
+      </Prompt>
+    </div>
+    <div>
+      <Field label="Goals we achieved this year 🎉" name="goalsAchieved" rows={3} placeholder="List everything — big wins and small ones..." data={data} set={set} />
+      <Field label="Goals still in progress" name="goalsProgress" rows={3} placeholder="What's still alive and worth keeping?" data={data} set={set} />
+      <Field label="Goals we're releasing (and that's okay)" name="goalsLetGo" rows={2} placeholder="What no longer fits who we're becoming?" data={data} set={set} />
+    </div>
+  </div>
+);
+
+const Goals5Step = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-p" clr="var(--purple)" items={[
+        "Where do you want to live in 5 years? Is your current home the plan?",
+        "What does your career look like — same path, a pivot, or something new?",
+        "What financial milestone would make you feel proud by 2031?",
+        "Any big life events ahead: kids, business, travel?",
+      ]}>
+        <div className="quote-card">
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:'14px',color:'var(--purple)',lineHeight:1.6,fontStyle:'italic'}}>"Most people overestimate what they can do in one year and underestimate what they can do in five."</div>
+          <div style={{fontSize:'12px',color:'var(--text-muted)',marginTop:'6px'}}>— Bill Gates</div>
+        </div>
+      </Prompt>
+    </div>
+    <div>
+      <div style={{fontSize:'13px',color:'var(--text-muted)',marginBottom:'14px',fontStyle:'italic'}}>By 2031 — be specific and personal. These are your goals, not a wish list.</div>
+      {[1,2,3,4,5].map(i=>(
+        <div key={i} className="fg">
+          <label>Goal #{i}</label>
+          <input type="text" value={data[`g5_${i}`]||''} onChange={e=>set(p=>({...p,[`g5_${i}`]:e.target.value}))}
+            placeholder={['Own our home outright','Travel to 3 new countries','Hit $500k net worth','Start a side business','Pay off all student loans'][i-1]} />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const Goals10Step = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-p" clr="var(--purple)" items={[
+        "In 10 years, what does your day-to-day life feel like?",
+        "What does financial freedom look like to you — time, money, location?",
+        "What do you want to have built or created by 2036?",
+        "What position do you want to be in as a couple?",
+      ]} />
+    </div>
+    <div>
+      <div style={{fontSize:'13px',color:'var(--text-muted)',marginBottom:'14px',fontStyle:'italic'}}>By 2036 — think bigger. What's the best version of your shared life?</div>
+      {[1,2,3,4,5].map(i=>(
+        <div key={i} className="fg">
+          <label>Goal #{i}</label>
+          <input type="text" value={data[`g10_${i}`]||''} onChange={e=>set(p=>({...p,[`g10_${i}`]:e.target.value}))} placeholder="Dream boldly — no filter needed here..." />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const Goals20Step = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-p" clr="var(--purple)" items={[
+        "By 2046 — what legacy do you want to have built together?",
+        "What does retirement look like for you — early, traditional, on your terms?",
+        "If money were no object, how is your life different in 20 years?",
+        "What do you want to be able to say you did together?",
+      ]}>
+        <div className="tip-box tip-p" style={{marginTop:'12px'}}>
+          <div style={{fontSize:'13px',color:'var(--purple)',lineHeight:1.5}}>These don't need to be precise. They're a compass, not a GPS. Write what genuinely excites you both.</div>
+        </div>
+      </Prompt>
+    </div>
+    <div>
+      <div style={{fontSize:'13px',color:'var(--text-muted)',marginBottom:'14px',fontStyle:'italic'}}>By 2046 — legacy, freedom, and meaning.</div>
+      {[1,2,3].map(i=>(
+        <div key={i} className="fg">
+          <label>Dream #{i}</label>
+          <textarea rows={3} value={data[`g20_${i}`]||''} onChange={e=>set(p=>({...p,[`g20_${i}`]:e.target.value}))} placeholder={['The life we want to be living...','What we want to have built...','How we want to be remembered...'][i-1]} />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const ThemeStep = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt cls="pcard-a" clr="var(--amber)" items={[
+        "One word or phrase that captures your financial focus for 2026.",
+        "Examples: 'Build', 'Momentum', 'Debt-Free', 'Invest in Us', 'Foundation', 'Freedom'.",
+        "This isn't a goal — it's a filter. Does this decision fit our theme?",
+      ]}>
+        <div className="tip-box tip-a" style={{marginTop:'12px'}}>
+          <div style={{fontSize:'12px',fontWeight:700,color:'var(--amber)',marginBottom:'4px'}}>💡 WHY HAVE A THEME?</div>
+          <div style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:1.5}}>A shared theme gives you a north star for decisions — especially when you disagree. "Does this fit our theme?" cuts through most debates.</div>
+        </div>
+      </Prompt>
+    </div>
+    <div>
+      <div style={{textAlign:'center',padding:'20px 0 16px'}}>
+        <div style={{fontSize:'42px',marginBottom:'14px'}}>🎯</div>
+        <label style={{display:'block',marginBottom:'10px',color:'var(--amber)'}}>Our 2026 Money Theme</label>
+        <input type="text" value={data.theme2026||''} onChange={e=>set(p=>({...p,theme2026:e.target.value}))}
+          placeholder="e.g. Foundation"
+          style={{textAlign:'center',fontSize:'22px',fontFamily:"'Playfair Display',serif",fontWeight:600,
+            padding:'16px',border:'2px solid var(--amber)',borderRadius:'var(--r)',
+            background:'var(--amber-light)',letterSpacing:'.02em'}} />
+      </div>
+      <Field label="Why this theme?" name="themeWhy" rows={2} placeholder="What does this mean to us as a couple?" data={data} set={set} />
+      <Field label="How we'll know we're living it" name="themeHow" rows={2} placeholder="What does success look like?" data={data} set={set} />
+    </div>
+  </div>
+);
+
+const ActionsStep = ({data,set}) => (
+  <div className="step-cols">
+    <div>
+      <Prompt items={[
+        "Be specific — 'research HYSAs by April 15' beats 'save more'.",
+        "Assign each action so there's no confusion about who's doing what.",
+        "Max 3 actions per person. Small, doable wins beat ambitious lists.",
+        "Set the next Money Date before you close the laptop!",
+      ]}>
+        <div className="tip-box tip-g" style={{marginTop:'14px'}}>
+          <label style={{color:'var(--green)',marginBottom:'8px',display:'block'}}>📅 Next Money Date</label>
+          <input type="date" value={data.nextDate||''} onChange={e=>set(p=>({...p,nextDate:e.target.value}))} style={{background:'#fff'}} />
+        </div>
+      </Prompt>
+    </div>
+    <div>
+      <Field label="Arthur will… ✅" name="arthurActions" rows={4} placeholder="e.g. Research refinancing options by April 15..." data={data} set={set} />
+      <Field label="Lorena will… ✅" name="lorenaActions" rows={4} placeholder="e.g. Increase 401k contribution by 1% this week..." data={data} set={set} />
+      <Field label="Together we will… 💑" name="togetherActions" rows={3} placeholder="e.g. Book vacation savings account by end of month..." data={data} set={set} />
+      <div className="g2" style={{marginTop:'8px'}}>
+        <MoodRow label="Arthur leaving feeling" name="arthurMoodE" data={data} set={set} />
+        <MoodRow label="Lorena leaving feeling" name="lorenaMoodE" data={data} set={set} />
+      </div>
+    </div>
+  </div>
+);
+
+// ─── Summary Step ─────────────────────────────────────────────────────────────
+const SummaryStep = ({data,meetingType,onReset}) => {
+  const nw  = calcNW(data);
+  const net = calcNet(data);
+  const inc = parseFloat(data.income)||0;
+  const exp = parseFloat(data.expenses)||0;
+  const retTot = (parseFloat(data.arthurRetirement)||0)+(parseFloat(data.lorenaRetirement)||0);
+
+  return (
+    <div style={{maxWidth:'680px',margin:'0 auto'}}>
+      <div style={{textAlign:'center',marginBottom:'28px'}} className="pi">
+        <div style={{fontSize:'52px',marginBottom:'12px'}}>🎉</div>
+        <h2 className="serif" style={{fontSize:'28px',marginBottom:'8px'}}>Money Date complete!</h2>
+        <p style={{color:'var(--text-muted)',fontSize:'15px'}}>Great work, you two. Here's your meeting summary.</p>
+      </div>
+
+      <div className="g2" style={{marginBottom:'20px'}}>
+        <div className="rcpt">
+          <div style={{padding:'11px 18px',background:'var(--green)'}}>
+            <span style={{fontSize:'11px',fontWeight:700,color:'#fff',letterSpacing:'.06em'}}>FINANCIAL SNAPSHOT</span>
+          </div>
+          {inc>0   && <div className="rcpt-row"><span className="k">Income</span><span className="v">{fmt$(inc)}</span></div>}
+          {exp>0   && <div className="rcpt-row"><span className="k">Expenses</span><span className="v">{fmt$(exp)}</span></div>}
+          {(inc||exp)>0 && <div className="rcpt-row"><span className="k">Net Savings</span><span className="v" style={{color:net>=0?'var(--green)':'var(--coral)'}}>{fmt$(net)}</span></div>}
+          {data.savingsBalance && <div className="rcpt-row"><span className="k">Savings</span><span className="v">{fmt$(data.savingsBalance)}</span></div>}
+          {data.investments    && <div className="rcpt-row"><span className="k">Investments</span><span className="v">{fmt$(data.investments)}</span></div>}
+          {data.debt           && <div className="rcpt-row"><span className="k">Total Debt</span><span className="v">{fmt$(data.debt)}</span></div>}
+          {(data.savingsBalance||data.investments||data.debt) && <div className="rcpt-row rcpt-tot"><span className="k">Net Worth</span><span className="v">{fmt$(nw)}</span></div>}
+        </div>
+
+        <div className="rcpt">
+          <div style={{padding:'11px 18px',background:'var(--amber)'}}>
+            <span style={{fontSize:'11px',fontWeight:700,color:'#fff',letterSpacing:'.06em'}}>ACTION ITEMS</span>
+          </div>
+          {data.arthurActions   && <div className="rcpt-row"><span className="k">Arthur</span><span className="v" style={{fontSize:'12px'}}>{data.arthurActions}</span></div>}
+          {data.lorenaActions   && <div className="rcpt-row"><span className="k">Lorena</span><span className="v" style={{fontSize:'12px'}}>{data.lorenaActions}</span></div>}
+          {data.togetherActions && <div className="rcpt-row"><span className="k">Together</span><span className="v" style={{fontSize:'12px'}}>{data.togetherActions}</span></div>}
+          {data.nextDate && (
+            <div className="rcpt-row" style={{background:'var(--green-light)'}}>
+              <span className="k" style={{color:'var(--green)'}}>Next Date</span>
+              <span className="v" style={{color:'var(--green)'}}>{new Date(data.nextDate+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {meetingType!=='monthly' && retTot>0 && (
+        <div className="rcpt" style={{marginBottom:'20px'}}>
+          <div style={{padding:'11px 18px',background:'var(--purple)'}}>
+            <span style={{fontSize:'11px',fontWeight:700,color:'#fff',letterSpacing:'.06em'}}>RETIREMENT</span>
+          </div>
+          {data.arthurRetirement && <div className="rcpt-row"><span className="k">Arthur</span><span className="v">{fmt$(data.arthurRetirement)}</span></div>}
+          {data.lorenaRetirement && <div className="rcpt-row"><span className="k">Lorena</span><span className="v">{fmt$(data.lorenaRetirement)}</span></div>}
+          <div className="rcpt-row" style={{background:'var(--purple-light)'}}>
+            <span className="k" style={{color:'var(--purple)',fontWeight:700}}>Combined Total</span>
+            <span className="v" style={{color:'var(--purple)'}}>{fmt$(retTot)}</span>
+          </div>
+        </div>
+      )}
+
+      <div style={{display:'flex',gap:'12px',justifyContent:'center',flexWrap:'wrap',marginBottom:'16px'}}>
+        <button className="btn-s" onClick={onReset}>↩ New Meeting</button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Main App ────────────────────────────────────────────────────────────────
+const STEP_MAP = {
+  warmup, budget:BudgetStep, savings:SavingsStep, debt:DebtStep,
+  upcoming:UpcomingStep, retirement:RetirementStep,
+  'goals-review':GoalsReviewStep, goals5:Goals5Step, goals10:Goals10Step,
+  goals20:Goals20Step, theme:ThemeStep, actions:ActionsStep,
+};
+
+function App() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem('md_auth') === '1');
+  const [pwInput, setPwInput] = useState('');
+  const [pwError, setPwError] = useState(false);
+  const [screen, setScreen] = useState('welcome');
+  const [mtype, setMtype] = useState(null);
+  const [si, setSi] = useState(0);
+  const [animKey, setAnimKey] = useState(0);
+  const [data, setData] = useState({date:new Date().toISOString().split('T')[0]});
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef(null);
+
+  const steps = mtype ? STEPS[mtype] : [];
+  const step  = steps[si];
+  const meta  = step ? META[step] : null;
+  const prog  = steps.length>1 ? (si/(steps.length-1))*100 : 0;
+
+  useEffect(()=>{
+    if (screen==='steps') {
+      setElapsed(0);
+      timerRef.current = setInterval(()=>setElapsed(e=>e+1),1000);
+    } else {
+      clearInterval(timerRef.current);
+    }
+    return ()=>clearInterval(timerRef.current);
+  },[screen]);
+
+  const fmtT = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+
+  const go = dir => {
+    setSi(i=>i+dir);
+    setAnimKey(k=>k+1);
+  };
+
+  const start = () => { if (!mtype) return; setSi(0); setScreen('steps'); };
+  const reset = () => { setScreen('welcome'); setData({date:new Date().toISOString().split('T')[0]}); setSi(0); };
+
+  const StepComp = step && step!=='summary' ? STEP_MAP[step] : null;
+
+  // ── LOCKED ──────────────────────────────────────────────────────────────────
+  if (!authed) {
+    const tryPw = () => {
+      if (pwInput === 'hello123') {
+        sessionStorage.setItem('md_auth','1');
+        setAuthed(true);
+        setPwError(false);
+      } else {
+        setPwError(true);
+        setPwInput('');
+      }
+    };
+    return (
+      <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',
+        background:'#0c0c0f',position:'relative',overflow:'hidden'}}>
+        {/* Ambient blobs */}
+        <div style={{position:'absolute',top:'-120px',left:'-80px',width:'500px',height:'500px',
+          borderRadius:'50%',background:'radial-gradient(circle,rgba(10,92,72,.55) 0%,transparent 70%)',
+          filter:'blur(40px)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',bottom:'-100px',right:'-60px',width:'420px',height:'420px',
+          borderRadius:'50%',background:'radial-gradient(circle,rgba(184,114,23,.3) 0%,transparent 70%)',
+          filter:'blur(50px)',pointerEvents:'none'}} />
+
+        <div className="pi" style={{position:'relative',width:'100%',maxWidth:'380px',padding:'16px'}}>
+          {/* Glass card */}
+          <div style={{
+            background:'rgba(255,255,255,0.04)',
+            border:'1px solid rgba(255,255,255,0.09)',
+            borderRadius:'24px',
+            padding:'44px 36px 36px',
+            backdropFilter:'blur(24px)',
+            boxShadow:'0 32px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08)',
+            textAlign:'center',
+          }}>
+            {/* Icon ring */}
+            <div style={{
+              width:'64px',height:'64px',borderRadius:'50%',margin:'0 auto 20px',
+              background:'linear-gradient(135deg,#0A5C48,#1D8E74)',
+              display:'flex',alignItems:'center',justifyContent:'center',
+              fontSize:'28px',boxShadow:'0 8px 32px rgba(10,92,72,.5)',
+            }}>💰</div>
+
+            <h2 className="serif" style={{fontSize:'24px',fontWeight:700,color:'#fff',marginBottom:'4px',letterSpacing:'-.01em'}}>
+              Money Date
+            </h2>
+            <p style={{fontSize:'13px',color:'rgba(255,255,255,.35)',marginBottom:'32px',letterSpacing:'.02em'}}>
+              Arthur & Lorena · Private
+            </p>
+
+            {/* Input */}
+            <div style={{marginBottom:'14px',textAlign:'left'}}>
+              <input
+                type="password"
+                value={pwInput}
+                onChange={e=>{setPwInput(e.target.value);setPwError(false);}}
+                onKeyDown={e=>e.key==='Enter'&&tryPw()}
+                placeholder="Password"
+                autoFocus
+                style={{
+                  background:'rgba(255,255,255,.07)',
+                  border:`1.5px solid ${pwError ? '#e05555' : 'rgba(255,255,255,.13)'}`,
+                  borderRadius:'12px',
+                  color:'#fff',
+                  fontSize:'15px',
+                  padding:'14px 16px',
+                  letterSpacing:'.06em',
+                  transition:'border-color .2s, box-shadow .2s',
+                  boxShadow: pwError ? '0 0 0 3px rgba(224,85,85,.2)' : 'none',
+                }}
+                onFocus={e=>{e.target.style.borderColor='rgba(10,92,72,.8)';e.target.style.boxShadow='0 0 0 3px rgba(10,92,72,.25)';}}
+                onBlur={e=>{if(!pwError){e.target.style.borderColor='rgba(255,255,255,.13)';e.target.style.boxShadow='none';}}}
+              />
+              {pwError && (
+                <div style={{fontSize:'12px',color:'#e05555',marginTop:'8px',paddingLeft:'2px'}}>
+                  Incorrect password — try again.
+                </div>
+              )}
+            </div>
+
+            <button onClick={tryPw} style={{
+              width:'100%',padding:'14px',border:'none',borderRadius:'12px',
+              background:'linear-gradient(135deg,#0A5C48 0%,#1D8E74 100%)',
+              color:'#fff',fontSize:'15px',fontWeight:600,cursor:'pointer',
+              boxShadow:'0 4px 20px rgba(10,92,72,.55)',
+              transition:'opacity .2s, transform .15s',
+              letterSpacing:'.01em',
+            }}
+              onMouseOver={e=>e.currentTarget.style.opacity='.88'}
+              onMouseOut={e=>e.currentTarget.style.opacity='1'}
+              onMouseDown={e=>e.currentTarget.style.transform='scale(.98)'}
+              onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}>
+              Unlock
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── WELCOME ─────────────────────────────────────────────────────────────────
+  if (screen==='welcome') return (
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+      {/* Hero */}
+      <div style={{background:'linear-gradient(155deg,#0A5C48 0%,#147B62 55%,#1D8E74 100%)',padding:'56px 40px 48px',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:'-50px',right:'-50px',width:'260px',height:'260px',borderRadius:'50%',background:'rgba(255,255,255,0.035)'}} />
+        <div style={{position:'absolute',bottom:'-70px',left:'35%',width:'200px',height:'200px',borderRadius:'50%',background:'rgba(255,255,255,0.025)'}} />
+        <div style={{maxWidth:'740px',margin:'0 auto',position:'relative'}}>
+          <div className="au" style={{fontSize:'12px',fontWeight:700,letterSpacing:'.12em',color:'rgba(255,255,255,.45)',textTransform:'uppercase',marginBottom:'14px'}}>
+            💰 Monthly Money Date
+          </div>
+          <h1 className="au1 serif" style={{fontSize:'clamp(28px,5vw,48px)',color:'#fff',fontWeight:700,lineHeight:1.2,marginBottom:'14px'}}>
+            Arthur & Lorena's<br/>Money Date
+          </h1>
+          <p className="au2" style={{fontSize:'16px',color:'rgba(255,255,255,.6)',maxWidth:'480px',lineHeight:1.65}}>
+            Your guided meeting to talk the numbers, align on goals, and walk away with a clear plan — together.
+          </p>
+          <div className="au3" style={{marginTop:'22px',display:'flex',gap:'20px',flexWrap:'wrap'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'7px',color:'rgba(255,255,255,.5)',fontSize:'13px'}}>
+              <span>📅</span>
+              {new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{flex:1,padding:'40px',maxWidth:'760px',margin:'0 auto',width:'100%'}}>
+        {/* Meeting type */}
+        <div className="au1" style={{marginBottom:'32px'}}>
+          <div style={{fontSize:'11px',fontWeight:700,letterSpacing:'.08em',color:'var(--text-light)',textTransform:'uppercase',marginBottom:'12px'}}>Choose your meeting type</div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'12px'}}>
+            {[
+              {k:'monthly',   e:'📅', t:'Monthly',     s:'~60 min',  d:'Budget · Savings · Debt · Upcoming'},
+              {k:'quarterly', e:'📊', t:'Quarterly',   s:'~90 min',  d:'Monthly + Retirement Corner'},
+              {k:'annual',    e:'⭐', t:'Q1 Annual',   s:'~2 hours', d:'Quarterly + Goals & Dreams', hl:true},
+            ].map(m=>(
+              <button key={m.k} onClick={()=>setMtype(m.k)}
+                className={`mcard ${mtype===m.k?(m.hl?'sel-a':'sel'):''}`}
+                style={m.hl&&mtype!==m.k?{borderColor:'var(--amber)'}:{}}>
+                <div style={{fontSize:'26px',marginBottom:'8px'}}>{m.e}</div>
+                <div className="serif" style={{fontSize:'16px',fontWeight:600,marginBottom:'2px',color:m.hl?'var(--amber)':'var(--text)'}}>{m.t}</div>
+                <div style={{fontSize:'12px',fontWeight:700,color:m.hl?'var(--amber)':'var(--green)',marginBottom:'6px'}}>{m.s}</div>
+                <div style={{fontSize:'12px',color:'var(--text-muted)',lineHeight:1.4}}>{m.d}</div>
+                {m.hl && <div style={{marginTop:'8px',fontSize:'11px',fontWeight:700,color:'var(--amber)',letterSpacing:'.04em'}}>← This Friday!</div>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Pre-meeting: Check spending first ── */}
+        <div className="au3" style={{marginBottom:'28px'}}>
+          <div style={{background:'linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%)',
+            borderRadius:'var(--r)',padding:'20px 24px',
+            display:'flex',alignItems:'center',gap:'14px'}}>
+            <div style={{fontSize:'32px',flexShrink:0}}>🤖</div>
+            <div>
+              <div style={{fontWeight:700,color:'#fff',fontSize:'15px',marginBottom:'3px'}}>
+                Before you start — check your spending
+              </div>
+              <div style={{fontSize:'13px',color:'rgba(255,255,255,.55)',lineHeight:1.45}}>
+                Open Copilot and ask <em style={{color:'rgba(255,255,255,.75)'}}>"How did we spend this month?"</em> so you arrive with the numbers ready.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="au4" style={{display:'flex',justifyContent:'center'}}>
+          <button className="btn-p" onClick={start} disabled={!mtype}
+            style={{fontSize:'16px',padding:'15px 44px',boxShadow:'0 6px 24px rgba(10,92,72,.28)'}}>
+            Start Money Date →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── STEPS ───────────────────────────────────────────────────────────────────
+  if (!meta) return null;
+  const isSummary = step==='summary';
+
+  return (
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'var(--bg)'}}>
+      {/* Sticky top bar */}
+      <div style={{background:'#fff',borderBottom:'1px solid var(--border)',padding:'10px 24px',
+        display:'flex',alignItems:'center',gap:'16px',position:'sticky',top:0,zIndex:20,boxShadow:'0 1px 0 var(--border)'}}>
+        <button onClick={()=>setScreen('welcome')} style={{background:'none',border:'none',fontSize:'20px',color:'var(--text-muted)',padding:'2px 6px',lineHeight:1}}>←</button>
+        <div style={{flex:1}}>
+          <div className="pbar-t" style={{marginBottom:'5px'}}>
+            <div className="pbar-f" style={{width:`${prog}%`}} />
+          </div>
+          <div className="dot-track">
+            {steps.map((s,i)=>(
+              <div key={s} className="dot"
+                style={{width:i===si?20:6, background:i<=si?'var(--green)':'var(--border)'}} />
+            ))}
+          </div>
+        </div>
+        <div className="timer" style={{fontSize:'13px',color:'var(--text-muted)',fontWeight:500,fontVariantNumeric:'tabular-nums'}}>
+          ⏱ {fmtT(elapsed)}
+        </div>
+      </div>
+
+      {/* Step header */}
+      <div className={meta.hdr} style={{padding:'22px 40px 18px',color:'#fff'}}>
+        <div style={{maxWidth:'960px',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div>
+            <div style={{fontSize:'11px',fontWeight:700,letterSpacing:'.1em',opacity:.5,textTransform:'uppercase',marginBottom:'5px'}}>
+              Step {si+1} of {steps.length}
+            </div>
+            <h2 className="serif" style={{fontSize:'clamp(18px,3vw,28px)',fontWeight:700,display:'flex',alignItems:'center',gap:'10px'}}>
+              <span>{meta.emoji}</span> {meta.title}
+            </h2>
+          </div>
+          {meta.time && (
+            <div style={{textAlign:'right',opacity:.6}}>
+              <div style={{fontSize:'10px',letterSpacing:'.06em',textTransform:'uppercase'}}>Suggested</div>
+              <div style={{fontSize:'14px',fontWeight:600}}>{meta.time}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{flex:1,padding:'32px 40px',maxWidth:'980px',margin:'0 auto',width:'100%'}}>
+        <div key={animKey} className="ai">
+          {isSummary ? (
+            <SummaryStep data={data} meetingType={mtype} onReset={reset} />
+          ) : StepComp ? (
+            <StepComp data={data} set={setData} />
+          ) : null}
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      {!isSummary && (
+        <div style={{background:'#fff',borderTop:'1px solid var(--border)',padding:'14px 40px',
+          display:'flex',justifyContent:'space-between',alignItems:'center',position:'sticky',bottom:0}}>
+          <button className="btn-s" onClick={()=>go(-1)} disabled={si===0} style={{opacity:si===0?.3:1}}>
+            ← Back
+          </button>
+          <span style={{fontSize:'13px',color:'var(--text-muted)',fontWeight:500}}>{si+1} / {steps.length}</span>
+          <button className="btn-p" onClick={()=>go(1)}>
+            {si===steps.length-2 ? '🎉 Finish →' : 'Next →'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Fix forward references
+const warmup = WarmupStep;
+STEP_MAP.warmup = WarmupStep;
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
